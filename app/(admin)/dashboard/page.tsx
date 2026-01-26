@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { signOut } from "firebase/auth";
 import {
   collection,
   getDocs,
@@ -11,11 +10,10 @@ import {
   orderBy,
   query,
 } from "firebase/firestore";
+import { db } from "@/_lib/firebase";
 
-import { db, auth } from "@/_lib/firebase";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
 import {
   Calendar,
   Fuel,
@@ -47,10 +45,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  /* ---------------- FETCH CARS ---------------- */
+  /* ---------- FETCH CARS ---------- */
   useEffect(() => {
-    let mounted = true;
-
     const fetchCars = async () => {
       try {
         const q = query(
@@ -64,71 +60,47 @@ export default function Dashboard() {
           ...(doc.data() as Omit<Car, "id">),
         }));
 
-        if (mounted) setCars(data);
+        setCars(data);
       } catch (error) {
         console.error("Failed to fetch cars:", error);
-        alert("Failed to load cars");
+        alert("Missing or insufficient permissions");
       } finally {
-        if (mounted) setLoading(false);
+        setLoading(false);
       }
     };
 
     fetchCars();
-    return () => {
-      mounted = false;
-    };
   }, []);
 
-  /* ---------------- DELETE CAR ---------------- */
+  /* ---------- DELETE ---------- */
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this car?")) return;
+    if (!confirm("Delete this car?")) return;
 
     try {
       await deleteDoc(doc(db, "cars", id));
       setCars((prev) => prev.filter((c) => c.id !== id));
     } catch (error) {
       console.error("Delete failed:", error);
-      alert("Failed to delete car");
-    }
-  };
-
-  /* ---------------- LOGOUT ---------------- */
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      router.replace("/"); // prevents back arrow issue
-    } catch (error) {
-      console.error("Logout failed:", error);
-      alert("Logout failed");
+      alert("Delete failed");
     }
   };
 
   if (loading) return <LoadingSpinnerCar />;
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl mx-auto mt-20">
       {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
 
-        <div className="flex gap-2">
-          <Button onClick={() => router.push("/dashboard/addCar")}>
-            + Add Car
-          </Button>
-
-          <Button
-            onClick={handleLogout}
-            className="bg-red-600 hover:bg-red-700"
-          >
-            Logout
-          </Button>
-        </div>
+        <Button onClick={() => router.push("/dashboard/addCar")}>
+          + Add Car
+        </Button>
       </div>
 
-      {/* EMPTY STATE */}
       {cars.length === 0 && (
         <p className="text-center text-gray-500 mt-10">
-          No cars available. Add your first car 🚗
+          No cars found. Add your first car 🚗
         </p>
       )}
 
@@ -148,7 +120,7 @@ export default function Dashboard() {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex h-full items-center justify-center text-sm text-gray-400">
+                <div className="flex h-full items-center justify-center text-gray-400">
                   No Image
                 </div>
               )}
@@ -170,14 +142,14 @@ export default function Dashboard() {
                   onClick={() =>
                     router.push(`/dashboard/editCar/${car.id}`)
                   }
-                  className="bg-green-600 p-1.5 rounded-full text-white hover:bg-green-700"
+                  className="bg-green-600 p-1.5 rounded-full text-white"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
 
                 <button
                   onClick={() => handleDelete(car.id)}
-                  className="bg-red-600 p-1.5 rounded-full text-white hover:bg-red-700"
+                  className="bg-red-600 p-1.5 rounded-full text-white"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -195,32 +167,23 @@ export default function Dashboard() {
                 </h2>
               </div>
 
-              {/* SPECS */}
-              <div className="grid grid-cols-2 gap-2 text-xs text-gray-700">
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  {car.year || "—"}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Fuel className="w-4 h-4" />
-                  {car.fuel || "—"}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Settings className="w-4 h-4" />
-                  {car.transmission || "—"}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Gauge className="w-4 h-4" />
-                  {car.kilometers
-                    ? `${car.kilometers.toLocaleString()} km`
-                    : "—"}
-                </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <Spec icon={<Calendar />} value={car.year} />
+                <Spec icon={<Fuel />} value={car.fuel} />
+                <Spec icon={<Settings />} value={car.transmission} />
+                <Spec
+                  icon={<Gauge />}
+                  value={
+                    car.kilometers
+                      ? `${car.kilometers.toLocaleString()} km`
+                      : "—"
+                  }
+                />
               </div>
 
-              {/* PRICE */}
               <div className="flex justify-between items-center pt-2 border-t">
                 <p className="text-lg font-bold text-[#1F3A93]">
-                  {car.price && !isNaN(Number(car.price))
+                  {car.price
                     ? `₹ ${Number(car.price).toLocaleString()}`
                     : "Call for Price"}
                 </p>
@@ -235,6 +198,22 @@ export default function Dashboard() {
           </Card>
         ))}
       </div>
+    </div>
+  );
+}
+
+/* ---------- SMALL SPEC COMPONENT ---------- */
+function Spec({
+  icon,
+  value,
+}: {
+  icon: React.ReactNode;
+  value?: string | number;
+}) {
+  return (
+    <div className="flex items-center gap-1">
+      {icon}
+      <span>{value || "—"}</span>
     </div>
   );
 }
