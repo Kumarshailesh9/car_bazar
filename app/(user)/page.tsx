@@ -1,21 +1,25 @@
 "use client"
 
 import AboutUs from "./about/page"
+import CarsPage from "./cars/page"
 import WhyChooseUs from "./components/ChooseUs"
-import Footer from "./components/Footer"
 import Gallery from "./components/Gallary"
 import HowItWorks from "./components/HowItsWork"
-import Navbar from "./components/Navbar"
 import ShowroomGallery from "./components/showroom"
+import WatchCarsSection from "./components/WatchCarsSection"
+import ContactUs from "./contact/page"
 
   export default function Profile(){
     return (
       <>
      <Gallery/>
-      <AboutUs/>
-     <ShowroomGallery/>
+     {/* <ShowroomGallery/> */}
+     <CarsPage/>
+     <WatchCarsSection/>
      <WhyChooseUs/>
      <HowItWorks/>
+      <AboutUs/>
+      <ContactUs/>
       </>
     )
   }

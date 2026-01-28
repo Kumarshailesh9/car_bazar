@@ -44,7 +44,7 @@ const reasons = [
 
 export default function WhyChooseUs() {
   return (
-    <section className="bg-gray-50 py-24">
+    <section className="bg-gradient-to-b from-white to-slate-50 py-24">
       <div className="max-w-7xl mx-auto px-6">
 
         {/* Heading */}
@@ -52,28 +52,31 @@ export default function WhyChooseUs() {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
             Why Choose <span className="text-[#1F3A93]">Alam Car Bazaar</span>
           </h2>
-          <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
-            We help you buy quality second-hand cars with confidence and peace of mind.
+          <p className="mt-4 text-gray-600 max-w-2xl mx-auto text-sm md:text-base">
+            Buy quality second-hand cars with confidence, transparency, and peace of mind.
           </p>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Features */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {reasons.map((item, index) => {
             const Icon = item.icon
             return (
               <div
                 key={index}
-                className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-lg transition border border-gray-100"
+                className="group rounded-2xl p-8 border border-gray-100 bg-white
+                           hover:border-[#1F3A93] transition"
               >
-                <div className="w-14 h-14 flex items-center justify-center rounded-xl bg-red-50 mb-6">
+                <div className="w-14 h-14 flex items-center justify-center rounded-xl
+                                bg-blue-50 mb-6 group-hover:bg-[#1F3A93]/10 transition">
                   <Icon className="text-[#1F3A93]" size={28} />
                 </div>
 
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   {item.title}
                 </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+
+                <p className="text-sm text-gray-600 leading-relaxed">
                   {item.desc}
                 </p>
               </div>

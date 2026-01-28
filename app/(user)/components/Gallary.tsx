@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import useEmblaCarousel from 'embla-carousel-react'
+import Link from 'next/link'
 
 const galleryItems = [
   {
@@ -68,11 +69,11 @@ export default function Gallery() {
                   </p>
 
                   <div className="mt-6 flex gap-4">
-                    <button className="px-6 py-3 bg-primary rounded-lg font-semibold hover:bg-primary/90">
+                    {/* <button className="px-6 py-3 bg-primary rounded-lg font-semibold hover:bg-primary/90">
                       View Cars
-                    </button>
+                    </button> */}
                     <button className="px-6 py-3 border border-white rounded-lg hover:bg-white hover:text-black transition">
-                      Contact Us
+                     <Link href={'/cars'}>Used Cars</Link> 
                     </button>
                   </div>
                 </div>

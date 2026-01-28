@@ -1,7 +1,6 @@
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 
-// app/(user)/layout.tsx
 export default function UserLayout({
   children,
 }: {

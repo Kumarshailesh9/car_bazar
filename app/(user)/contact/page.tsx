@@ -1,76 +1,99 @@
 "use client";
 
-import { MapPin, Phone, Mail } from "lucide-react";
+import { MapPin, Phone, Mail, Clock } from "lucide-react";
 
 export default function ContactUs() {
   return (
-    <section className="w-full py-16 bg-gray-50">
+    <section className="w-full py-14 bg-gray-50">
       <div className="max-w-6xl mx-auto px-4">
-        
+
         {/* Heading */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-gray-900">
             Contact Us
           </h2>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-600 mt-1">
             We’re here to help you find your perfect car
           </p>
         </div>
 
-        {/* Contact Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          {/* Address */}
-          <div className="bg-white rounded-2xl shadow-md p-6 text-center hover:shadow-lg transition">
-            <div className="flex justify-center mb-4">
-              <MapPin className="w-10 h-10 text-red-500" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              Address
-            </h3>
-            <p className="text-gray-600 mt-2 text-sm leading-relaxed">
-              Main Road, Daudpur, <br />
-              Near Beeaar Hyundai, <br />
-              Uttar Pradesh 273001
-            </p>
+        {/* Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-6 items-start">
+
+          {/* LEFT – MAP */}
+          <div className="w-full h-[380px] rounded-lg overflow-hidden">
+            <iframe
+              title="Alam Car Bazar Location"
+              src="https://www.google.com/maps?q=4%20Wheeler%20Alam%20Car%20Bazar%20Pvt%20Ltd,%20Main%20Road,%20Daudpur,%20near%20Beeaar%20Hyundai,%20Uttar%20Pradesh%20273001&output=embed"
+              className="w-full h-full border-0"
+              loading="lazy"
+            />
           </div>
 
-          {/* Phone */}
-          <div className="bg-white rounded-2xl shadow-md p-6 text-center hover:shadow-lg transition">
-            <div className="flex justify-center mb-4">
-              <Phone className="w-10 h-10 text-green-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              Call Us
-            </h3>
-            <p className="text-gray-600 mt-2 text-sm">
-              <a
-                href="tel:+919918476777"
-                className="hover:text-green-600 font-medium"
-              >
-                +91 9918476777
-              </a>
-            </p>
-          </div>
+          {/* RIGHT – DETAILS */}
+          <div className="space-y-4">
 
-          {/* Email */}
-          <div className="bg-white rounded-2xl shadow-md p-6 text-center hover:shadow-lg transition">
-            <div className="flex justify-center mb-4">
-              <Mail className="w-10 h-10 text-blue-600" />
+            <div className="flex items-start gap-3">
+              <MapPin className="w-5 h-5 text-red-500 mt-1" />
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900">
+                  Address
+                </h3>
+                <p className="text-gray-600 text-sm leading-snug">
+                  4 Wheeler Alam Car Bazar Pvt Ltd <br />
+                  Main Road, Daudpur <br />
+                  Near Beeaar Hyundai <br />
+                  Uttar Pradesh 273001
+                </p>
+              </div>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              Email Us
-            </h3>
-            <p className="text-gray-600 mt-2 text-sm">
-              <a
-                href="mailto:info@alambazar.com"
-                className="hover:text-blue-600 font-medium"
-              >
-                info@alambazar.com
-              </a>
-            </p>
-          </div>
 
+            <div className="flex items-center gap-3">
+              <Phone className="w-5 h-5 text-green-600" />
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900">
+                  Call
+                </h3>
+                <a
+                  href="tel:+919918476777"
+                  className="text-gray-600 text-sm hover:text-green-600 font-medium"
+                >
+                  +91 9918476777
+                </a>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Mail className="w-5 h-5 text-blue-600" />
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900">
+                  Email
+                </h3>
+                <a
+                  href="mailto:info@alambazar.com"
+                  className="text-gray-600 text-sm hover:text-blue-600 font-medium"
+                >
+                  info@alambazar.com
+                </a>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <Clock className="w-5 h-5 text-purple-600 mt-1" />
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900">
+                  Working Hours
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  Open 7 Days <br />
+                  <span className="font-medium">
+                    7:00 AM – 9:00 PM
+                  </span>
+                </p>
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
     </section>
