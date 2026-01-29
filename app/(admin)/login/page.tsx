@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/_lib/firebase";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,7 +15,7 @@ export default function LoginPage() {
   const login = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      alert("Please enter email and password");
+      toast.warning("Please enter email and password");
       return;
     }
 
@@ -22,11 +23,11 @@ export default function LoginPage() {
       setLoading(true);
       const res = await signInWithEmailAndPassword(auth, email, password);
       console.log("Logged in:", res.user);
-      alert("Login successful ✅");
+      toast.success("Login successfully");
       router.push("/dashboard");
     } catch (error: any) {
       console.error(error);
-      alert(error.message);
+      toast.error('Invalid Email or Password');
     } finally {
       setLoading(false);
     }

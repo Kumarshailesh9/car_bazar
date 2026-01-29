@@ -12,6 +12,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { toast } from "react-toastify";
 
 export default function EditCar() {
   const { id } = useParams();
@@ -37,7 +38,7 @@ export default function EditCar() {
       const snap = await getDoc(ref);
 
       if (!snap.exists()) {
-        alert("Car not found");
+        toast.warning("Car not found");
         router.push("/dashboard");
         return;
       }
@@ -70,7 +71,7 @@ export default function EditCar() {
   // 🔹 Update car
   const handleUpdate = async () => {
     if (!title || !model || !year || !fuel || !price) {
-      alert("Please fill all required fields");
+      toast.warning("Please fill all required fields");
       return;
     }
 
@@ -90,10 +91,11 @@ export default function EditCar() {
         updatedAt: serverTimestamp(),
       });
 
-      alert("Car updated successfully ✅");
+      toast.success("Car updated successfully");
       router.push("/dashboard");
     } catch (error: any) {
-      alert(error.message);
+      console.log(error.message);
+      toast.error('Something went wrong')
     }
   };
 

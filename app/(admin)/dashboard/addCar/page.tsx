@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "react-toastify";
 
 export default function AddCar() {
   const [title, setTitle] = useState("");
@@ -32,7 +33,7 @@ export default function AddCar() {
     const files = Array.from(e.target.files);
 
     if (images.length + files.length > 10) {
-      alert("Maximum 10 images allowed");
+      toast.warn("Maximum 10 images allowed");
       return;
     }
 
@@ -69,7 +70,7 @@ export default function AddCar() {
 
   const handleSubmit = async () => {
     if (!title || !model || !year || !fuel || !transmission || !kilometers || !price) {
-      alert("Please fill all required fields");
+      toast.warning("Please fill all required fields");
       return;
     }
 
@@ -93,7 +94,7 @@ export default function AddCar() {
         createdAt: serverTimestamp(),
       });
 
-      alert("Car added successfully ✅");
+      toast.success("Car added successfully");
 
       setTitle("");
       setModel("");
@@ -106,7 +107,8 @@ export default function AddCar() {
       setOwner("");
       setImages([]);
     } catch (err: any) {
-      alert(err.message);
+      console.log(err)
+      toast.error('something went wrong');
     }
 
     setLoading(false);

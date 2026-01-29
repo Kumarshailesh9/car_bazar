@@ -27,6 +27,7 @@ import {
 
 import LoadingSpinnerCar from "@/app/(user)/components/LoadingCar";
 import DownloadCarsPDF from "@/components/ui/downloadcarpdf";
+import { toast } from "react-toastify";
 
 type Car = {
   id: string;
@@ -64,7 +65,7 @@ export default function Dashboard() {
         setCars(data);
       } catch (error) {
         console.error("Failed to fetch cars:", error);
-        alert("Missing or insufficient permissions");
+        toast.warning("Missing or insufficient permissions");
       } finally {
         setLoading(false);
       }
@@ -82,7 +83,7 @@ export default function Dashboard() {
       setCars((prev) => prev.filter((c) => c.id !== id));
     } catch (error) {
       console.error("Delete failed:", error);
-      alert("Delete failed");
+      toast.error("Delete failed");
     }
   };
 

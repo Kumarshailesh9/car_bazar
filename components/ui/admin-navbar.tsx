@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
 import { auth } from "@/_lib/firebase";
 import { LogOut, ShieldUser } from "lucide-react";
+import { toast } from "react-toastify";
 
 export default function AdminNavbar() {
   const [open, setOpen] = useState(false);
@@ -15,10 +16,11 @@ export default function AdminNavbar() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      toast.success("Logout successfully!")
       router.replace("/"); // prevents back navigation
     } catch (error) {
       console.error("Logout failed:", error);
-      alert("Logout failed");
+      toast.error("Logout failed");
     }
   };
 
