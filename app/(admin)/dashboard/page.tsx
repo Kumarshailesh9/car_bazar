@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 
 import LoadingSpinnerCar from "@/app/(user)/components/LoadingCar";
+import DownloadCarsPDF from "@/components/ui/downloadcarpdf";
 
 type Car = {
   id: string;
@@ -93,9 +94,7 @@ export default function Dashboard() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
 
-        <Button onClick={() => router.push("/dashboard/addCar")}>
-          + Add Car
-        </Button>
+        <DownloadCarsPDF cars={cars} />
       </div>
 
       {cars.length === 0 && (
