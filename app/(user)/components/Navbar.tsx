@@ -28,6 +28,9 @@ export default function Navbar() {
             <Link href="/cars" className="hover:text-red-600 transition">
               Used Cars
             </Link>
+             <Link href="/sellCar" className="hover:text-red-600 transition">
+              Sell Car
+            </Link>
             <Link href="/contact" className="flex items-center gap-1 hover:text-red-600 transition">
               Contact <PhoneCall size={18} />
             </Link>
@@ -56,7 +59,7 @@ export default function Navbar() {
         }`}
       >
         <div className="mx-4 mt-2 rounded-xl border bg-white shadow p-4 space-y-2">
-          {["/", "/about", "/cars", "/contact"].map((path, i) => (
+          {["/", "/about", "/cars", "/sellCar", "/contact"].map((path, i) => (
             <Link
               key={i}
               href={path}

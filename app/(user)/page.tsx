@@ -2,10 +2,11 @@
 
 import AboutUs from "./about/page"
 import CarsPage from "./cars/page"
+import PopularBrands from "./components/Brands"
 import WhyChooseUs from "./components/ChooseUs"
 import Gallery from "./components/Gallary"
 import HowItWorks from "./components/HowItsWork"
-import ShowroomGallery from "./components/showroom"
+import FounderCard from "./components/Owener"
 import WatchCarsSection from "./components/WatchCarsSection"
 import ContactUs from "./contact/page"
 
@@ -16,6 +17,8 @@ import ContactUs from "./contact/page"
      {/* <ShowroomGallery/> */}
      <CarsPage/>
      <WatchCarsSection/>
+     <FounderCard/>
+      <PopularBrands/>
      <WhyChooseUs/>
      <HowItWorks/>
       <AboutUs/>
