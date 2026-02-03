@@ -3,8 +3,19 @@
 import { useState } from "react";
 import { Car, Phone } from "lucide-react";
 
+/* ✅ Type for form state */
+type FormState = {
+  name: string;
+  phone: string;
+  carName: string;
+  year: string;
+  km: string;
+  location: string;
+  expectedPrice: string;
+};
+
 export default function SellYourCarForm() {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormState>({
     name: "",
     phone: "",
     carName: "",
@@ -14,11 +25,14 @@ export default function SellYourCarForm() {
     expectedPrice: "",
   });
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  /* ✅ Input change handler */
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  /* ✅ Form submit handler (FIXED TYPE) */
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const message = `
@@ -67,76 +81,75 @@ export default function SellYourCarForm() {
             onSubmit={handleSubmit}
             className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white/5 backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white/10"
           >
-            {/* Name */}
             <input
               type="text"
               name="name"
               placeholder="Your Name"
+              value={form.name}
               required
               onChange={handleChange}
               className="input-style"
             />
 
-            {/* Phone */}
             <input
               type="tel"
               name="phone"
               placeholder="Phone Number"
+              value={form.phone}
               required
               onChange={handleChange}
               className="input-style"
             />
 
-            {/* Car Name */}
             <input
               type="text"
               name="carName"
               placeholder="Car Name (e.g. Swift, City)"
+              value={form.carName}
               required
               onChange={handleChange}
               className="input-style"
             />
 
-            {/* Year */}
             <input
               type="number"
               name="year"
               placeholder="Model Year"
+              value={form.year}
               required
               onChange={handleChange}
               className="input-style"
             />
 
-            {/* KM Driven */}
             <input
               type="number"
               name="km"
               placeholder="KM Driven"
+              value={form.km}
               required
               onChange={handleChange}
               className="input-style"
             />
 
-            {/* Location */}
             <input
               type="text"
               name="location"
               placeholder="Car Location"
+              value={form.location}
               required
               onChange={handleChange}
               className="input-style"
             />
 
-            {/* Expected Price */}
             <input
               type="text"
               name="expectedPrice"
               placeholder="Expected Price"
+              value={form.expectedPrice}
               onChange={handleChange}
               className="input-style md:col-span-2"
             />
 
-            {/* Submit */}
             <button
               type="submit"
               className="md:col-span-2 flex items-center justify-center gap-2 w-full px-4 py-3 rounded-md bg-[#25D366] text-white font-semibold hover:opacity-90 transition"
@@ -145,11 +158,10 @@ export default function SellYourCarForm() {
               Send Details on WhatsApp
             </button>
           </form>
-
         </div>
       </div>
 
-      {/* Tailwind input utility */}
+      {/* Styles */}
       <style jsx>{`
         .input-style {
           width: 100%;
