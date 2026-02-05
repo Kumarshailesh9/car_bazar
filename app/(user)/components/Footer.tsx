@@ -58,7 +58,7 @@ export default function Footer() {
               Main Road, Daudpur <br />
               Near Beeaar Hyundai <br />
               Uttar Pradesh 273001 <br />
-              <span className="block mt-2">📞 +91 9918476777</span>
+              <span className="block mt-2">📞 +91 9936069962</span>
               <span>✉️ info@alambazar.com</span>
             </p>
           </div>

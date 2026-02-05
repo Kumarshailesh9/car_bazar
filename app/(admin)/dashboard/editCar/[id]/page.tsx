@@ -28,10 +28,15 @@ export default function EditCar() {
   const [city, setCity] = useState("");
   const [owner, setOwner] = useState("");
   const [status, setStatus] = useState("available");
+
+  // ✅ COLOR STATES
+  const [color, setColor] = useState("");
+  const [customColor, setCustomColor] = useState("");
+
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Fetch car data
+  /* ---------------- FETCH CAR ---------------- */
   useEffect(() => {
     const fetchCar = async () => {
       const ref = doc(db, "cars", id as string);
@@ -57,20 +62,40 @@ export default function EditCar() {
       setStatus(data.status || "available");
       setImages(data.images || []);
 
+      // ✅ HANDLE COLOR
+      const predefinedColors = [
+        "White",
+        "Black",
+        "Silver",
+        "Grey",
+        "Red",
+        "Blue",
+      ];
+
+      if (predefinedColors.includes(data.color)) {
+        setColor(data.color);
+        setCustomColor("");
+      } else {
+        setColor("Other");
+        setCustomColor(data.color || "");
+      }
+
       setLoading(false);
     };
 
     fetchCar();
   }, [id, router]);
 
-  // ❌ Remove image (from Firestore only)
+  /* ---------------- IMAGE REMOVE ---------------- */
   const removeImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index));
   };
 
-  // 🔹 Update car
+  /* ---------------- UPDATE ---------------- */
   const handleUpdate = async () => {
-    if (!title || !model || !year || !fuel || !price) {
+    const finalColor = color === "Other" ? customColor : color;
+
+    if (!title || !model || !year || !fuel || !price || !finalColor) {
       toast.warning("Please fill all required fields");
       return;
     }
@@ -84,6 +109,7 @@ export default function EditCar() {
         transmission,
         kilometers,
         price,
+        color: finalColor, // ✅ UPDATED
         city,
         owner,
         status,
@@ -94,8 +120,8 @@ export default function EditCar() {
       toast.success("Car updated successfully");
       router.push("/dashboard");
     } catch (error: any) {
-      console.log(error.message);
-      toast.error('Something went wrong')
+      console.error(error.message);
+      toast.error("Something went wrong");
     }
   };
 
@@ -105,7 +131,7 @@ export default function EditCar() {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Admin • Edit Car</h1>
+      <h1 className="text-3xl font-bold mb-6">🚗 Admin • Edit Car</h1>
 
       {/* BASIC DETAILS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -114,9 +140,7 @@ export default function EditCar() {
         <Input type="number" placeholder="Year" value={year} onChange={(e) => setYear(Number(e.target.value))} />
 
         <Select value={fuel} onValueChange={setFuel}>
-          <SelectTrigger>
-            <SelectValue placeholder="Fuel Type" />
-          </SelectTrigger>
+          <SelectTrigger><SelectValue placeholder="Fuel Type" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="Petrol">Petrol</SelectItem>
             <SelectItem value="Diesel">Diesel</SelectItem>
@@ -125,9 +149,7 @@ export default function EditCar() {
         </Select>
 
         <Select value={transmission} onValueChange={setTransmission}>
-          <SelectTrigger>
-            <SelectValue placeholder="Transmission" />
-          </SelectTrigger>
+          <SelectTrigger><SelectValue placeholder="Transmission" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="Manual">Manual</SelectItem>
             <SelectItem value="Automatic">Automatic</SelectItem>
@@ -142,14 +164,41 @@ export default function EditCar() {
         />
       </div>
 
-      {/* PRICE & STATUS */}
+      {/* COLOR */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Input
-          type="number"
-          placeholder="Price (₹)"
-          value={price}
-          onChange={(e) => setPrice(Number(e.target.value))}
-        />
+        <Select
+          value={color}
+          onValueChange={(val) => {
+            setColor(val);
+            if (val !== "Other") setCustomColor("");
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Car Color" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="White">White</SelectItem>
+            <SelectItem value="Black">Black</SelectItem>
+            <SelectItem value="Silver">Silver</SelectItem>
+            <SelectItem value="Grey">Grey</SelectItem>
+            <SelectItem value="Red">Red</SelectItem>
+            <SelectItem value="Blue">Blue</SelectItem>
+            <SelectItem value="Other">Other</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {color === "Other" && (
+          <Input
+            placeholder="Enter custom color"
+            value={customColor}
+            onChange={(e) => setCustomColor(e.target.value)}
+          />
+        )}
+      </div>
+
+      {/* PRICE & LOCATION */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <Input type="number" placeholder="Price (₹)" value={price} onChange={(e) => setPrice(Number(e.target.value))} />
         <Input placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} />
         <Input placeholder="Owner (1st / 2nd)" value={owner} onChange={(e) => setOwner(e.target.value)} />
       </div>
@@ -157,9 +206,7 @@ export default function EditCar() {
       {/* STATUS */}
       <div className="max-w-xs mb-6">
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger>
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
+          <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="available">Available</SelectItem>
             <SelectItem value="sold">Sold</SelectItem>
@@ -167,7 +214,7 @@ export default function EditCar() {
         </Select>
       </div>
 
-      {/* EXISTING IMAGES */}
+      {/* IMAGES */}
       <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mb-6">
         {images.map((img, i) => (
           <div key={i} className="relative">

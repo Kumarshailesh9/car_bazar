@@ -10,6 +10,7 @@ type FormState = {
   carName: string;
   year: string;
   km: string;
+  color: string;
   location: string;
   expectedPrice: string;
 };
@@ -21,17 +22,16 @@ export default function SellYourCarForm() {
     carName: "",
     year: "",
     km: "",
+    color: "",
     location: "",
     expectedPrice: "",
   });
 
-  /* ✅ Input change handler */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  /* ✅ Form submit handler (FIXED TYPE) */
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -43,11 +43,12 @@ export default function SellYourCarForm() {
 🚘 Car Name: ${form.carName}
 📅 Year: ${form.year}
 🛣 KM Driven: ${form.km}
+🎨 Color: ${form.color}
 📍 Location: ${form.location}
 💰 Expected Price: ${form.expectedPrice}
     `;
 
-    const whatsappUrl = `https://wa.me/919918476777?text=${encodeURIComponent(
+    const whatsappUrl = `https://wa.me/919936069962?text=${encodeURIComponent(
       message
     )}`;
 
@@ -133,6 +134,17 @@ export default function SellYourCarForm() {
 
             <input
               type="text"
+              name="color"
+              placeholder="Car Color (e.g. White)"
+              value={form.color}
+              required
+              onChange={handleChange}
+              className="input-style"
+            />
+
+            {/* ✅ LOCATION + PRICE IN ONE ROW */}
+            <input
+              type="text"
               name="location"
               placeholder="Car Location"
               value={form.location}
@@ -147,7 +159,7 @@ export default function SellYourCarForm() {
               placeholder="Expected Price"
               value={form.expectedPrice}
               onChange={handleChange}
-              className="input-style md:col-span-2"
+              className="input-style"
             />
 
             <button

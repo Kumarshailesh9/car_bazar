@@ -7,9 +7,7 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -23,15 +21,18 @@ export default function AddCar() {
   const [transmission, setTransmission] = useState("");
   const [kilometers, setKilometers] = useState<number | "">("");
   const [price, setPrice] = useState<number | "">("");
+  const [color, setColor] = useState("");
+  const [customColor, setCustomColor] = useState("");
   const [city, setCity] = useState("");
   const [owner, setOwner] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
 
+  /* ---------------- IMAGE HANDLERS ---------------- */
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-    const files = Array.from(e.target.files);
 
+    const files = Array.from(e.target.files);
     if (images.length + files.length > 10) {
       toast.warn("Maximum 10 images allowed");
       return;
@@ -68,8 +69,20 @@ export default function AddCar() {
     return urls;
   };
 
+  /* ---------------- SUBMIT ---------------- */
   const handleSubmit = async () => {
-    if (!title || !model || !year || !fuel || !transmission || !kilometers || !price) {
+    const finalColor = color === "Other" ? customColor : color;
+
+    if (
+      !title ||
+      !model ||
+      !year ||
+      !fuel ||
+      !transmission ||
+      !kilometers ||
+      !price ||
+      !finalColor
+    ) {
       toast.warning("Please fill all required fields");
       return;
     }
@@ -87,6 +100,7 @@ export default function AddCar() {
         transmission,
         kilometers,
         price,
+        color: finalColor,
         city,
         owner,
         images: imageUrls,
@@ -103,73 +117,144 @@ export default function AddCar() {
       setTransmission("");
       setKilometers("");
       setPrice("");
+      setColor("");
+      setCustomColor("");
       setCity("");
       setOwner("");
       setImages([]);
-    } catch (err: any) {
-      console.log(err)
-      toast.error('something went wrong');
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong");
     }
 
     setLoading(false);
   };
 
+  /* ---------------- UI ---------------- */
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Admin • Add New Car</h1>
+    <div className="min-h-screen bg-gray-50 py-10 px-4 pt-20">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-800">
+            🚗 Admin • Add New Car
+          </h1>
+          <p className="text-gray-500 mt-1">
+            Enter complete car details before publishing
+          </p>
+        </div>
 
-      {/* CAR DETAILS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <Input placeholder="Model" value={model} onChange={(e) => setModel(e.target.value)} />
-        <Input placeholder="Year" type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} />
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+          {/* CAR DETAILS */}
+          <h2 className="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">
+            Car Details
+          </h2>
 
-        <Select value={fuel} onValueChange={setFuel}>
-          <SelectTrigger><SelectValue placeholder="Fuel Type" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Petrol">Petrol</SelectItem>
-            <SelectItem value="Diesel">Diesel</SelectItem>
-            <SelectItem value="CNG">CNG</SelectItem>
-          </SelectContent>
-        </Select>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <Input placeholder="Model" value={model} onChange={(e) => setModel(e.target.value)} />
+            <Input placeholder="Year" type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} />
 
-        <Select value={transmission} onValueChange={setTransmission}>
-          <SelectTrigger><SelectValue placeholder="Transmission" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Manual">Manual</SelectItem>
-            <SelectItem value="Automatic">Automatic</SelectItem>
-          </SelectContent>
-        </Select>
+            <Select value={fuel} onValueChange={setFuel}>
+              <SelectTrigger><SelectValue placeholder="Fuel Type" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Petrol">Petrol</SelectItem>
+                <SelectItem value="Diesel">Diesel</SelectItem>
+                <SelectItem value="CNG">CNG</SelectItem>
+              </SelectContent>
+            </Select>
 
-        <Input placeholder="Kilometers Driven" type="number" value={kilometers} onChange={(e) => setKilometers(Number(e.target.value))} />
-      </div>
+            <Select value={transmission} onValueChange={setTransmission}>
+              <SelectTrigger><SelectValue placeholder="Transmission" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Manual">Manual</SelectItem>
+                <SelectItem value="Automatic">Automatic</SelectItem>
+              </SelectContent>
+            </Select>
 
-      {/* PRICE & LOCATION */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Input placeholder="Price (₹)" type="number" value={price} onChange={(e) => setPrice(Number(e.target.value))} />
-        <Input placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} />
-        <Input placeholder="Owner (1st / 2nd)" value={owner} onChange={(e) => setOwner(e.target.value)} />
-      </div>
+            <Input
+              placeholder="Kilometers Driven"
+              type="number"
+              value={kilometers}
+              onChange={(e) => setKilometers(Number(e.target.value))}
+            />
 
-      {/* IMAGES */}
-      <Input type="file" multiple accept="image/*" onChange={handleImageChange} />
+            {/* COLOR */}
+            <Select
+              value={color}
+              onValueChange={(val) => {
+                setColor(val);
+                if (val !== "Other") setCustomColor("");
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Car Color" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="White">White</SelectItem>
+                <SelectItem value="Black">Black</SelectItem>
+                <SelectItem value="Silver">Silver</SelectItem>
+                <SelectItem value="Grey">Grey</SelectItem>
+                <SelectItem value="Red">Red</SelectItem>
+                <SelectItem value="Blue">Blue</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
 
-      <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mt-4">
-        {images.map((img, i) => (
-          <div key={i} className="relative">
-            <img src={URL.createObjectURL(img)} className="h-24 w-full object-cover rounded" />
-            <button onClick={() => removeImage(i)} className="absolute top-1 right-1 bg-red-600 text-white px-1 rounded">✕</button>
+            {color === "Other" && (
+              <Input
+                placeholder="Enter custom color"
+                value={customColor}
+                onChange={(e) => setCustomColor(e.target.value)}
+              />
+            )}
           </div>
-        ))}
-      </div>
 
-      <button
-        onClick={handleSubmit}
-        disabled={loading}
-        className="mt-6 w-full bg-[#1F3A93] hover:bg-[#162c6f] text-white py-3 rounded-lg font-semibold"
-      >
-        {loading ? "Uploading..." : "Add Car"}
-      </button>
+          {/* PRICE & LOCATION */}
+          <h2 className="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">
+            Pricing & Ownership
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <Input placeholder="Price (₹)" type="number" value={price} onChange={(e) => setPrice(Number(e.target.value))} />
+            <Input placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} />
+            <Input placeholder="Owner (1st / 2nd)" value={owner} onChange={(e) => setOwner(e.target.value)} />
+          </div>
+
+          {/* IMAGES */}
+          <h2 className="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">
+            Car Images (Max 10)
+          </h2>
+
+          <Input type="file" multiple accept="image/*" onChange={handleImageChange} />
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mt-4">
+            {images.map((img, i) => (
+              <div key={i} className="relative group rounded-lg overflow-hidden border">
+                <img src={URL.createObjectURL(img)} className="h-24 w-full object-cover" />
+                <button
+                  onClick={() => removeImage(i)}
+                  className="absolute top-1 right-1 bg-black/70 text-white px-2 py-0.5 rounded text-xs opacity-0 group-hover:opacity-100 transition"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* ACTION */}
+          <div className="mt-10">
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="w-full md:w-auto px-10 py-3 rounded-xl bg-gradient-to-r from-[#1F3A93] to-[#16307d] text-white font-semibold shadow-md hover:opacity-90 transition"
+            >
+              {loading ? "Uploading..." : "Add Car"}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

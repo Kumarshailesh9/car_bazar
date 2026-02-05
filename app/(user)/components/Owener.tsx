@@ -35,7 +35,7 @@ export default function FounderCard() {
 
               {/* Name */}
               <h2 className="text-3xl md:text-4xl font-bold tracking-wide">
-                ALAM
+                ZAFAR MAHFOOZ
               </h2>
 
               {/* Role */}

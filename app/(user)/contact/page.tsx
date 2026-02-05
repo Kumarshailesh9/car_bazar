@@ -57,10 +57,10 @@ export default function ContactUs() {
                   Call
                 </h3>
                 <a
-                  href="tel:+919918476777"
+                  href="tel:+919936069962"
                   className="text-gray-600 text-sm hover:text-green-600 font-medium"
                 >
-                  +91 9918476777
+                  +91 9936069962
                 </a>
               </div>
             </div>
@@ -115,7 +115,7 @@ export default function ContactUs() {
 
                 {/* Call Me */}
                 <a
-                  href="tel:+919918476777"
+                  href="tel:+919936069962"
                   className="flex items-center justify-center gap-2 px-4 py-3 rounded-md bg-gray-600 text-white text-sm font-medium hover:bg-gray-700 transition"
                 >
                   <Phone className="w-4 h-4" />
@@ -124,7 +124,7 @@ export default function ContactUs() {
 
                 {/* WhatsApp Me */}
                 <a
-                  href="https://wa.me/919918476777"
+                  href="https://wa.me/919936069962"
                   target="_blank"
                   className="flex items-center justify-center gap-2 px-4 py-3 rounded-md bg-[#25D366] text-white text-sm font-medium hover:opacity-90 transition"
                 >
