@@ -21,7 +21,7 @@ export default function ShowroomGallery() {
           {/* Large Left Image */}
           <div className="md:col-span-2 md:row-span-2">
             <img
-              src="/1.webp"
+              src="/1.jpeg"
               alt="Alam Car Bazar Showroom"
               className="w-full h-full object-cover rounded-2xl"
             />

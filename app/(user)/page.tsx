@@ -15,7 +15,7 @@ import ContactUs from "./contact/page"
       <>
      <Gallery/>
      {/* <ShowroomGallery/> */}
-     <CarsPage/>
+     {/* <CarsPage/> */}
      <WatchCarsSection/>
      <FounderCard/>
       <PopularBrands/>

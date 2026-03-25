@@ -10,19 +10,25 @@ const galleryItems = [
     id: 1,
     title: 'Certified Pre-Owned Cars',
     category: 'Quality Assured',
-    image: '/1.webp'
+    image: '/1.jpeg'
   },
   {
     id: 2,
     title: 'Wide Range of Used Cars',
     category: 'Best Deals',
-    image: '/2.webp'
+    image: '/2.jpeg'
   },
   {
     id: 3,
     title: 'Trusted by 1000+ Customers',
     category: 'Alam Car Bazar Pvt Ltd',
-    image: '/3.webp'
+    image: '/3.jpeg'
+  },
+  {
+    id: 4,
+    title: 'Trusted by 1000+ Customers',
+    category: 'Alam Car Bazar Pvt Ltd',
+    image: '/4.jpeg'
   }
 ]
 

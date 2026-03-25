@@ -13,7 +13,7 @@ export default function Footer() {
 
           {/* Brand */}
           <div>
-            <h3 className="text-xl font-bold text-red-600 mb-3">
+            <h3 className="text-xl font-bold text-red-800 mb-3">
               Alam Car Bazar
             </h3>
             <p className="text-sm leading-relaxed">
@@ -28,10 +28,10 @@ export default function Footer() {
               Quick Links
             </h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/" className="hover:text-red-600">Home</Link></li>
-              <li><Link href="/about" className="hover:text-red-600">About</Link></li>
-              <li><Link href="/cars" className="hover:text-red-600">Used Cars</Link></li>
-              <li><Link href="/contact" className="hover:text-red-600">Contact</Link></li>
+              <li><Link href="/" className="hover:text-red-800">Home</Link></li>
+              <li><Link href="/about" className="hover:text-red-800">About</Link></li>
+              <li><Link href="/cars" className="hover:text-red-800">Used Cars</Link></li>
+              <li><Link href="/contact" className="hover:text-red-800">Contact</Link></li>
             </ul>
           </div>
 

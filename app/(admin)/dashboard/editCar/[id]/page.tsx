@@ -29,21 +29,23 @@ export default function EditCar() {
   const [owner, setOwner] = useState("");
   const [status, setStatus] = useState("available");
 
-  // ✅ COLOR STATES
   const [color, setColor] = useState("");
   const [customColor, setCustomColor] = useState("");
 
   const [images, setImages] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [newImages, setNewImages] = useState<File[]>([]);
 
-  /* ---------------- FETCH CAR ---------------- */
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+
+  /* ---------------- FETCH ---------------- */
   useEffect(() => {
     const fetchCar = async () => {
       const ref = doc(db, "cars", id as string);
       const snap = await getDoc(ref);
 
       if (!snap.exists()) {
-        toast.warning("Car not found");
+        toast.error("Car not found");
         router.push("/dashboard");
         return;
       }
@@ -52,29 +54,20 @@ export default function EditCar() {
 
       setTitle(data.title || "");
       setModel(data.model || "");
-      setYear(data.year || "");
+      setYear(data.year ?? "");
       setFuel(data.fuel || "");
       setTransmission(data.transmission || "");
-      setKilometers(data.kilometers || "");
-      setPrice(data.price || "");
+      setKilometers(data.kilometers ?? "");
+      setPrice(data.price ?? "");
       setCity(data.city || "");
       setOwner(data.owner || "");
       setStatus(data.status || "available");
       setImages(data.images || []);
 
-      // ✅ HANDLE COLOR
-      const predefinedColors = [
-        "White",
-        "Black",
-        "Silver",
-        "Grey",
-        "Red",
-        "Blue",
-      ];
+      const predefinedColors = ["White", "Black", "Silver", "Grey", "Red", "Blue"];
 
       if (predefinedColors.includes(data.color)) {
         setColor(data.color);
-        setCustomColor("");
       } else {
         setColor("Other");
         setCustomColor(data.color || "");
@@ -86,21 +79,94 @@ export default function EditCar() {
     fetchCar();
   }, [id, router]);
 
-  /* ---------------- IMAGE REMOVE ---------------- */
-  const removeImage = (index: number) => {
+  /* ---------------- IMAGE ---------------- */
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+
+    const files = Array.from(e.target.files);
+
+    if (images.length + newImages.length + files.length > 10) {
+      toast.warning("Max 10 images allowed");
+      return;
+    }
+
+    setNewImages((prev) => [...prev, ...files]);
+  };
+
+  const removeOldImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index));
+  };
+
+  const removeNewImage = (index: number) => {
+    setNewImages(newImages.filter((_, i) => i !== index));
+  };
+
+  /* ---------------- CLOUDINARY UPLOAD ---------------- */
+  const uploadImages = async () => {
+    if (newImages.length === 0) return [];
+
+    const urls: string[] = [];
+
+    for (const image of newImages) {
+      try {
+        const formData = new FormData();
+        formData.append("file", image);
+        formData.append(
+          "upload_preset",
+          process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
+        );
+
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok || !data.secure_url) {
+          throw new Error("Upload failed");
+        }
+
+        urls.push(data.secure_url);
+      } catch (err) {
+        console.error(err);
+        toast.error("Image upload failed");
+      }
+    }
+
+    return urls;
   };
 
   /* ---------------- UPDATE ---------------- */
   const handleUpdate = async () => {
     const finalColor = color === "Other" ? customColor : color;
 
-    if (!title || !model || !year || !fuel || !price || !finalColor) {
-      toast.warning("Please fill all required fields");
+    if (
+      !title ||
+      !model ||
+      !year ||
+      !fuel ||
+      !transmission ||
+      !kilometers ||
+      !price ||
+      !finalColor ||
+      !city ||
+      !owner ||
+      images.length === 0
+    ) {
+      toast.warning("All fields are required");
       return;
     }
 
+    setUploading(true);
+
     try {
+      const uploadedUrls = await uploadImages();
+      const finalImages = [...images, ...uploadedUrls];
+
       await updateDoc(doc(db, "cars", id as string), {
         title,
         model,
@@ -109,132 +175,138 @@ export default function EditCar() {
         transmission,
         kilometers,
         price,
-        color: finalColor, // ✅ UPDATED
+        color: finalColor,
         city,
         owner,
         status,
-        images,
+        images: finalImages,
         updatedAt: serverTimestamp(),
       });
 
       toast.success("Car updated successfully");
       router.push("/dashboard");
-    } catch (error: any) {
-      console.error(error.message);
-      toast.error("Something went wrong");
+    } catch (error) {
+      console.error(error);
+      toast.error("Update failed");
     }
+
+    setUploading(false);
   };
 
-  if (loading) {
-    return <p className="text-center mt-10">Loading...</p>;
-  }
+  if (loading)
+    return <p className="text-center mt-10 text-gray-500">Loading...</p>;
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">🚗 Admin • Edit Car</h1>
+    <div className="max-w-4xl mt-12 lg:max-w-5xl mx-auto p-4 sm:p-6">
+      <div className="bg-white shadow-xl rounded-2xl p-5 sm:p-6 space-y-6">
 
-      {/* BASIC DETAILS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <Input placeholder="Model" value={model} onChange={(e) => setModel(e.target.value)} />
-        <Input type="number" placeholder="Year" value={year} onChange={(e) => setYear(Number(e.target.value))} />
+        <h1 className="text-2xl font-bold text-gray-800">🚗 Edit Car</h1>
 
-        <Select value={fuel} onValueChange={setFuel}>
-          <SelectTrigger><SelectValue placeholder="Fuel Type" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Petrol">Petrol</SelectItem>
-            <SelectItem value="Diesel">Diesel</SelectItem>
-            <SelectItem value="CNG">CNG</SelectItem>
-          </SelectContent>
-        </Select>
+        {/* BASIC */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Input placeholder="Title *" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <Input placeholder="Model *" value={model} onChange={(e) => setModel(e.target.value)} />
+          <Input type="number" placeholder="Year *" value={year}
+            onChange={(e) => setYear(e.target.value ? Number(e.target.value) : "")} />
+        </div>
 
-        <Select value={transmission} onValueChange={setTransmission}>
-          <SelectTrigger><SelectValue placeholder="Transmission" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Manual">Manual</SelectItem>
-            <SelectItem value="Automatic">Automatic</SelectItem>
-          </SelectContent>
-        </Select>
+        {/* DETAILS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Input type="number" placeholder="Price *" value={price}
+            onChange={(e) => setPrice(e.target.value ? Number(e.target.value) : "")} />
+          <Input placeholder="City *" value={city} onChange={(e) => setCity(e.target.value)} />
+          <Input placeholder="Owner *" value={owner} onChange={(e) => setOwner(e.target.value)} />
+          <Input type="number" placeholder="KM Driven *" value={kilometers}
+            onChange={(e) => setKilometers(e.target.value ? Number(e.target.value) : "")} />
 
-        <Input
-          type="number"
-          placeholder="Kilometers Driven"
-          value={kilometers}
-          onChange={(e) => setKilometers(Number(e.target.value))}
-        />
-      </div>
+          <Select value={fuel} onValueChange={setFuel}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Fuel *" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Petrol">Petrol</SelectItem>
+              <SelectItem value="Diesel">Diesel</SelectItem>
+              <SelectItem value="CNG">CNG</SelectItem>
+            </SelectContent>
+          </Select>
 
-      {/* COLOR */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Select
-          value={color}
-          onValueChange={(val) => {
-            setColor(val);
-            if (val !== "Other") setCustomColor("");
-          }}
+          <Select value={transmission} onValueChange={setTransmission}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Transmission *" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Manual">Manual</SelectItem>
+              <SelectItem value="Automatic">Automatic</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* COLOR */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Select value={color} onValueChange={setColor}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Color *" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="White">White</SelectItem>
+              <SelectItem value="Black">Black</SelectItem>
+              <SelectItem value="Other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {color === "Other" && (
+            <Input
+              placeholder="Custom Color"
+              value={customColor}
+              onChange={(e) => setCustomColor(e.target.value)}
+            />
+          )}
+        </div>
+
+        {/* STATUS */}
+        <div className="max-w-xs">
+          <Select value={status} onValueChange={setStatus}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="available">Available</SelectItem>
+              <SelectItem value="sold">Sold</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* IMAGE UPLOAD */}
+        <input type="file" multiple accept="image/*" onChange={handleImageChange} />
+
+        {/* IMAGE GRID */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          {[...images, ...newImages.map((f) => URL.createObjectURL(f))].map((img, i) => (
+            <div key={i} className="relative group">
+              <img src={img} className="h-28 w-full object-cover rounded-lg" />
+              <button
+                onClick={() =>
+                  i < images.length
+                    ? removeOldImage(i)
+                    : removeNewImage(i - images.length)
+                }
+                className="absolute top-1 right-1 bg-black/70 text-white px-2 text-xs rounded opacity-0 group-hover:opacity-100"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* BUTTON */}
+        <button
+          onClick={handleUpdate}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg"
         >
-          <SelectTrigger>
-            <SelectValue placeholder="Car Color" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="White">White</SelectItem>
-            <SelectItem value="Black">Black</SelectItem>
-            <SelectItem value="Silver">Silver</SelectItem>
-            <SelectItem value="Grey">Grey</SelectItem>
-            <SelectItem value="Red">Red</SelectItem>
-            <SelectItem value="Blue">Blue</SelectItem>
-            <SelectItem value="Other">Other</SelectItem>
-          </SelectContent>
-        </Select>
+          {uploading ? "Updating..." : "Update Car"}
+        </button>
 
-        {color === "Other" && (
-          <Input
-            placeholder="Enter custom color"
-            value={customColor}
-            onChange={(e) => setCustomColor(e.target.value)}
-          />
-        )}
       </div>
-
-      {/* PRICE & LOCATION */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Input type="number" placeholder="Price (₹)" value={price} onChange={(e) => setPrice(Number(e.target.value))} />
-        <Input placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} />
-        <Input placeholder="Owner (1st / 2nd)" value={owner} onChange={(e) => setOwner(e.target.value)} />
-      </div>
-
-      {/* STATUS */}
-      <div className="max-w-xs mb-6">
-        <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="available">Available</SelectItem>
-            <SelectItem value="sold">Sold</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* IMAGES */}
-      <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mb-6">
-        {images.map((img, i) => (
-          <div key={i} className="relative">
-            <img src={img} className="h-24 w-full object-cover rounded" />
-            <button
-              onClick={() => removeImage(i)}
-              className="absolute top-1 right-1 bg-red-600 text-white text-xs px-1 rounded"
-            >
-              ✕
-            </button>
-          </div>
-        ))}
-      </div>
-
-      <button
-        onClick={handleUpdate}
-        className="w-full bg-[#1F3A93] hover:bg-[#162c6f] text-white py-3 rounded-lg font-semibold"
-      >
-        Update Car
-      </button>
     </div>
   );
 }

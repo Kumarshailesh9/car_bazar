@@ -25,33 +25,37 @@ export default function AddCar() {
   const [customColor, setCustomColor] = useState("");
   const [city, setCity] = useState("");
   const [owner, setOwner] = useState("");
+
   const [images, setImages] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [showModal, setShowModal] = useState(false);
 
-  /* ---------------- IMAGE HANDLERS ---------------- */
+  /* ---------------- IMAGE ---------------- */
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
 
     const files = Array.from(e.target.files);
+
     if (images.length + files.length > 10) {
-      toast.warn("Maximum 10 images allowed");
+      toast.warn("Max 10 images allowed");
       return;
     }
 
     setImages((prev) => [...prev, ...files]);
-    e.target.value = "";
   };
 
   const removeImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index));
   };
 
+  /* ---------------- CLOUDINARY UPLOAD ---------------- */
   const uploadImages = async () => {
     const urls: string[] = [];
 
-    for (const image of images) {
+    for (let i = 0; i < images.length; i++) {
       const formData = new FormData();
-      formData.append("file", image);
+      formData.append("file", images[i]);
       formData.append(
         "upload_preset",
         process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
@@ -59,11 +63,20 @@ export default function AddCar() {
 
       const res = await fetch(
         `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-        { method: "POST", body: formData }
+        {
+          method: "POST",
+          body: formData,
+        }
       );
 
       const data = await res.json();
+
+      if (!data.secure_url) throw new Error("Upload failed");
+
       urls.push(data.secure_url);
+
+      // ✅ update progress
+      setProgress(Math.round(((i + 1) / images.length) * 100));
     }
 
     return urls;
@@ -81,13 +94,17 @@ export default function AddCar() {
       !transmission ||
       !kilometers ||
       !price ||
-      !finalColor
+      !finalColor ||
+      !city ||
+      !owner ||
+      images.length === 0
     ) {
-      toast.warning("Please fill all required fields");
+      toast.warning("Fill all fields");
       return;
     }
 
     setLoading(true);
+    setShowModal(true); // ✅ open modal
 
     try {
       const imageUrls = await uploadImages();
@@ -110,6 +127,7 @@ export default function AddCar() {
 
       toast.success("Car added successfully");
 
+      // reset
       setTitle("");
       setModel("");
       setYear("");
@@ -122,9 +140,14 @@ export default function AddCar() {
       setCity("");
       setOwner("");
       setImages([]);
+      setProgress(0);
+
+      // close modal after short delay
+      setTimeout(() => setShowModal(false), 800);
     } catch (err) {
       console.error(err);
       toast.error("Something went wrong");
+      setShowModal(false);
     }
 
     setLoading(false);
@@ -132,129 +155,116 @@ export default function AddCar() {
 
   /* ---------------- UI ---------------- */
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4 pt-20">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">
-            🚗 Admin • Add New Car
-          </h1>
-          <p className="text-gray-500 mt-1">
-            Enter complete car details before publishing
-          </p>
+    <div className="min-h-screen bg-gray-50 py-6 px-3 pt-16">
+      <div className="max-w-5xl mx-auto bg-white shadow rounded-xl p-4">
+
+        <h1 className="text-xl font-semibold mb-4">Add Car</h1>
+
+        {/* FORM */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+
+          <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <Input placeholder="Model" value={model} onChange={(e) => setModel(e.target.value)} />
+          <Input type="number" placeholder="Year" value={year}
+            onChange={(e) => setYear(e.target.value ? Number(e.target.value) : "")} />
+
+          <Select value={fuel} onValueChange={setFuel}>
+            <SelectTrigger><SelectValue placeholder="Fuel" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Petrol">Petrol</SelectItem>
+              <SelectItem value="Diesel">Diesel</SelectItem>
+              <SelectItem value="CNG">CNG</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={transmission} onValueChange={setTransmission}>
+            <SelectTrigger><SelectValue placeholder="Transmission" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Manual">Manual</SelectItem>
+              <SelectItem value="Automatic">Automatic</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Input type="number" placeholder="KM Driven" value={kilometers}
+            onChange={(e) => setKilometers(e.target.value ? Number(e.target.value) : "")} />
+
+          <Input type="number" placeholder="Price" value={price}
+            onChange={(e) => setPrice(e.target.value ? Number(e.target.value) : "")} />
+
+          <Input placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} />
+          <Input placeholder="Owner" value={owner} onChange={(e) => setOwner(e.target.value)} />
+
+          <Select value={color} onValueChange={setColor}>
+            <SelectTrigger><SelectValue placeholder="Color" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="White">White</SelectItem>
+              <SelectItem value="Black">Black</SelectItem>
+              <SelectItem value="Other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {color === "Other" && (
+            <Input
+              placeholder="Custom Color"
+              value={customColor}
+              onChange={(e) => setCustomColor(e.target.value)}
+            />
+          )}
         </div>
 
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-          {/* CAR DETAILS */}
-          <h2 className="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">
-            Car Details
-          </h2>
+        {/* IMAGE */}
+        <div className="mt-4">
+          <input type="file" multiple accept="image/*" onChange={handleImageChange} />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
-            <Input placeholder="Model" value={model} onChange={(e) => setModel(e.target.value)} />
-            <Input placeholder="Year" type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} />
-
-            <Select value={fuel} onValueChange={setFuel}>
-              <SelectTrigger><SelectValue placeholder="Fuel Type" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Petrol">Petrol</SelectItem>
-                <SelectItem value="Diesel">Diesel</SelectItem>
-                <SelectItem value="CNG">CNG</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={transmission} onValueChange={setTransmission}>
-              <SelectTrigger><SelectValue placeholder="Transmission" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Manual">Manual</SelectItem>
-                <SelectItem value="Automatic">Automatic</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Input
-              placeholder="Kilometers Driven"
-              type="number"
-              value={kilometers}
-              onChange={(e) => setKilometers(Number(e.target.value))}
-            />
-
-            {/* COLOR */}
-            <Select
-              value={color}
-              onValueChange={(val) => {
-                setColor(val);
-                if (val !== "Other") setCustomColor("");
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Car Color" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="White">White</SelectItem>
-                <SelectItem value="Black">Black</SelectItem>
-                <SelectItem value="Silver">Silver</SelectItem>
-                <SelectItem value="Grey">Grey</SelectItem>
-                <SelectItem value="Red">Red</SelectItem>
-                <SelectItem value="Blue">Blue</SelectItem>
-                <SelectItem value="Other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {color === "Other" && (
-              <Input
-                placeholder="Enter custom color"
-                value={customColor}
-                onChange={(e) => setCustomColor(e.target.value)}
-              />
-            )}
-          </div>
-
-          {/* PRICE & LOCATION */}
-          <h2 className="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">
-            Pricing & Ownership
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <Input placeholder="Price (₹)" type="number" value={price} onChange={(e) => setPrice(Number(e.target.value))} />
-            <Input placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} />
-            <Input placeholder="Owner (1st / 2nd)" value={owner} onChange={(e) => setOwner(e.target.value)} />
-          </div>
-
-          {/* IMAGES */}
-          <h2 className="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">
-            Car Images (Max 10)
-          </h2>
-
-          <Input type="file" multiple accept="image/*" onChange={handleImageChange} />
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mt-4">
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mt-2">
             {images.map((img, i) => (
-              <div key={i} className="relative group rounded-lg overflow-hidden border">
-                <img src={URL.createObjectURL(img)} className="h-24 w-full object-cover" />
+              <div key={i} className="relative">
+                <img src={URL.createObjectURL(img)} className="h-20 w-full object-cover rounded" />
                 <button
                   onClick={() => removeImage(i)}
-                  className="absolute top-1 right-1 bg-black/70 text-white px-2 py-0.5 rounded text-xs opacity-0 group-hover:opacity-100 transition"
+                  className="absolute top-0 right-0 bg-black text-white text-xs px-1"
                 >
                   ✕
                 </button>
               </div>
             ))}
           </div>
+        </div>
 
-          {/* ACTION */}
-          <div className="mt-10">
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="w-full md:w-auto px-10 py-3 rounded-xl bg-gradient-to-r from-[#1F3A93] to-[#16307d] text-white font-semibold shadow-md hover:opacity-90 transition"
-            >
-              {loading ? "Uploading..." : "Add Car"}
-            </button>
+        {/* BUTTON */}
+        <button
+          onClick={handleSubmit}
+          className="w-full mt-4 bg-blue-600 text-white py-2 rounded"
+        >
+          Add Car
+        </button>
+      </div>
+
+      {/* ✅ MODAL */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-[90%] max-w-sm text-center shadow-lg">
+
+            <h2 className="text-lg font-semibold mb-4">
+              Uploading Images...
+            </h2>
+
+            <div className="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
+              <div
+                className="bg-blue-600 h-3 transition-all"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+
+            <p className="mt-3 text-sm text-gray-600">
+              {progress}% completed
+            </p>
+
+            <div className="mt-4 animate-spin h-6 w-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
+
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

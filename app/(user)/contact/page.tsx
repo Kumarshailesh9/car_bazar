@@ -104,7 +104,7 @@ export default function ContactUs() {
               <a
                 href="https://www.google.com/maps/dir/?api=1&destination=4+Wheeler+Alam+Car+Bazar+Pvt+Ltd,+Daudpur"
                 target="_blank"
-                className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-md bg-red-500 text-white text-sm font-medium hover:bg-red-700 transition"
+                className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-md bg-red-800 text-white text-sm font-medium hover:bg-red-900 transition"
               >
                 <Navigation className="w-4 h-4" />
                 Get Directions
@@ -126,7 +126,7 @@ export default function ContactUs() {
                 <a
                   href="https://wa.me/919936069962"
                   target="_blank"
-                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-md bg-[#25D366] text-white text-sm font-medium hover:opacity-90 transition"
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-md bg-[#0f5328] text-white text-sm font-medium hover:opacity-90 transition"
                 >
                   <Phone className="w-4 h-4" />
                   WhatsApp Me

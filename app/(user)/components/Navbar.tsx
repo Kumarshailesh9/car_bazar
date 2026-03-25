@@ -15,28 +15,28 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <img src="/logo.png" alt="Logo" className="w-10 h-10" />
-            <p className="text-red-600 font-extrabold tracking-wide">
+            <p className="text-red-800 font-extrabold tracking-wide">
               ALAM CAR BAZAR
             </p>
           </Link>
 
           {/* Desktop Menu */}
           <nav className="hidden md:flex items-center gap-8 font-medium">
-            <Link href="/about" className="hover:text-red-600 transition">
+            <Link href="/about" className="hover:text-red-800 transition">
               About
             </Link>
-            <Link href="/cars" className="hover:text-red-600 transition">
+            <Link href="/cars" className="hover:text-red-800 transition">
               Used Cars
             </Link>
-             <Link href="/sellCar" className="hover:text-red-600 transition">
+             <Link href="/sellCar" className="hover:text-red-800 transition">
               Sell Car
             </Link>
-            <Link href="/contact" className="flex items-center gap-1 hover:text-red-600 transition">
+            <Link href="/contact" className="flex items-center gap-1 hover:text-red-800 transition">
               Contact <PhoneCall size={18} />
             </Link>
             <Link
               href="/login"
-              className="flex items-center gap-1 px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+              className="flex items-center gap-1 px-4 py-2 rounded-lg bg-red-800 text-white hover:bg-red-700 transition"
             >
               <ShieldUser size={18} /> Admin
             </Link>
@@ -45,7 +45,7 @@ export default function Navbar() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setOpen(!open)}
-            className="md:hidden w-10 h-10 flex items-center justify-center rounded bg-red-600 text-white"
+            className="md:hidden w-10 h-10 flex items-center justify-center rounded text-red-800 text-white"
           >
             {open ? "✕" : "☰"}
           </button>
@@ -73,7 +73,7 @@ export default function Navbar() {
           <Link
             href="/login"
             onClick={() => setOpen(false)}
-            className="block text-center bg-red-600 text-white py-3 rounded-lg font-medium"
+            className="block text-center text-red-800 text-white py-3 rounded-lg font-medium"
           >
             Admin
           </Link>
