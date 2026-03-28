@@ -45,7 +45,7 @@ export default function Navbar() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setOpen(!open)}
-            className="md:hidden w-10 h-10 flex items-center justify-center rounded text-red-800 text-white"
+            className="md:hidden w-10 h-10 flex items-center justify-center rounded text-red-800 "
           >
             {open ? "✕" : "☰"}
           </button>
@@ -66,14 +66,14 @@ export default function Navbar() {
               onClick={() => setOpen(false)}
               className="block px-4 py-3 rounded hover:bg-red-50"
             >
-              {path === "/" ? "Home" : path.replace("/", "").toUpperCase()}
+              {path === "/" ? "Home" : path.replace("/", " ").toUpperCase()}
             </Link>
           ))}
 
           <Link
             href="/login"
             onClick={() => setOpen(false)}
-            className="block text-center text-red-800 text-white py-3 rounded-lg font-medium"
+            className="block text-center text-red-800 bg-gray-300 py-3 rounded-lg font-medium"
           >
             Admin
           </Link>
